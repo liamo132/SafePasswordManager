@@ -4,17 +4,52 @@
  */
 package passwordmanager;
 
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+
 /**
  *
- * @author User
+ * @author liam
  */
+
 public class PasswordManagerGUI extends javax.swing.JFrame {
 
-    /**
-     * Creates new form PasswordManagerGUI
-     */
+    private PasswordManager pm; // Instance of PasswordManager
+    private int passwordCount;
+
     public PasswordManagerGUI() {
         initComponents();
+         pm = new PasswordManager(); // Initialize the PasswordManager
+
+        // Load the initial password count from the database
+        passwordCount = pm.getPasswordCount(); 
+
+        loadAllPasswords(); // Load the existing passwords to display
+        updatePasswordLabel(); // Update the label to reflect the current count
+    }
+
+    private void loadAllPasswords() {
+        PasswordManager pm = new PasswordManager();
+        List<PasswordEntry> passwords = pm.getAllPasswords(); // Fetch the list of passwords
+
+        // Clear the text area before displaying new entries
+        DisplayPasswordsTA.setText("");
+
+        for (PasswordEntry entry : passwords) {
+            // Display domain with a message indicating the password is stored securely
+            DisplayPasswordsTA.append("Domain: " + entry.getDomain() + ", Password stored securely.\n");
+        }
+    }
+
+    private void addPassword(String domain, String plainPassword) {
+        pm.addPassword(domain, plainPassword); // Add password to the manager
+        passwordCount++; // Increment the counter
+        updatePasswordLabel(); // Update the label
+    }
+
+    private void updatePasswordLabel() {
+        LBL.setText("Saved Passwords: " + passwordCount); // Update the label text
     }
 
     /**
@@ -30,16 +65,16 @@ public class PasswordManagerGUI extends javax.swing.JFrame {
         TitleLBL = new javax.swing.JLabel();
         AddPasswordBTN = new javax.swing.JButton();
         RetrievePasswordBTN = new javax.swing.JButton();
+        LBL = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         DisplayPasswordsTA = new javax.swing.JTextArea();
-        LBL = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         Backgrnd.setBackground(new java.awt.Color(204, 255, 255));
 
         TitleLBL.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        TitleLBL.setText(" Password Manager ");
+        TitleLBL.setText("  Password Manager ");
         TitleLBL.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         AddPasswordBTN.setBackground(new java.awt.Color(102, 255, 102));
@@ -60,48 +95,50 @@ public class PasswordManagerGUI extends javax.swing.JFrame {
             }
         });
 
+        LBL.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        LBL.setText("Saved Passwords: ");
+
         DisplayPasswordsTA.setColumns(20);
         DisplayPasswordsTA.setRows(5);
         jScrollPane1.setViewportView(DisplayPasswordsTA);
-
-        LBL.setText("Saved Passwords: ");
 
         javax.swing.GroupLayout BackgrndLayout = new javax.swing.GroupLayout(Backgrnd);
         Backgrnd.setLayout(BackgrndLayout);
         BackgrndLayout.setHorizontalGroup(
             BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BackgrndLayout.createSequentialGroup()
-                .addGap(157, 157, 157)
-                .addComponent(TitleLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BackgrndLayout.createSequentialGroup()
-                .addGap(38, 38, 38)
                 .addGroup(BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(RetrievePasswordBTN)
-                    .addComponent(AddPasswordBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
-                .addGroup(BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LBL)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33))
+                    .addGroup(BackgrndLayout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addGroup(BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(RetrievePasswordBTN)
+                            .addComponent(AddPasswordBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(62, 62, 62)
+                        .addGroup(BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(LBL)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(BackgrndLayout.createSequentialGroup()
+                        .addGap(207, 207, 207)
+                        .addComponent(TitleLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(47, Short.MAX_VALUE))
         );
         BackgrndLayout.setVerticalGroup(
             BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BackgrndLayout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(TitleLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(BackgrndLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(BackgrndLayout.createSequentialGroup()
-                        .addGap(89, 89, 89)
-                        .addComponent(AddPasswordBTN)
-                        .addGap(35, 35, 35)
-                        .addComponent(RetrievePasswordBTN))
+                        .addGap(166, 166, 166)
+                        .addComponent(AddPasswordBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(54, 54, 54)
+                        .addComponent(RetrievePasswordBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(BackgrndLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                        .addGap(22, 22, 22)
+                        .addComponent(TitleLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(34, 34, 34)
                         .addComponent(LBL)
-                        .addGap(3, 3, 3)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(36, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(59, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -112,18 +149,62 @@ public class PasswordManagerGUI extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Backgrnd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(Backgrnd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void AddPasswordBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddPasswordBTNActionPerformed
+        String domain = javax.swing.JOptionPane.showInputDialog(this, "Enter domain:");
+        String password = javax.swing.JOptionPane.showInputDialog(this, "Enter password:");
+
+        if (domain != null && password != null) {
+            try {
+                // Encrypt the password before storing
+                String encryptedPassword = PasswordEncryption.encrypt(password);
+                pm.addPassword(domain, encryptedPassword); // Use the existing instance
+
+                // Increment password count and update the label
+                addPassword(domain, encryptedPassword); // Call addPassword to update count
+
+                // Update the text area with the newly added domain and an indication that the password was encrypted
+                DisplayPasswordsTA.append("Domain: " + domain + ", Password stored securely.\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+                javax.swing.JOptionPane.showMessageDialog(this, "Error encrypting password: " + e.getMessage());
+            }
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Domain and password cannot be null.");
+        }
+
 
     }//GEN-LAST:event_AddPasswordBTNActionPerformed
 
     private void RetrievePasswordBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RetrievePasswordBTNActionPerformed
-        // TODO add your handling code here:
+        String domain = javax.swing.JOptionPane.showInputDialog(this, "Enter domain to retrieve password:");
+
+        if (domain != null) {
+            PasswordManager pm = new PasswordManager();
+            String encryptedPassword = pm.getPassword(domain); // This should return the encrypted password from the database
+
+            if (encryptedPassword != null) {
+                try {
+                    // Decrypt the password before displaying
+                    String decryptedPassword = PasswordEncryption.decrypt(encryptedPassword);
+                    javax.swing.JOptionPane.showMessageDialog(this, "Password for domain '" + domain + "': " + decryptedPassword);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    javax.swing.JOptionPane.showMessageDialog(this, "Error decrypting password: " + e.getMessage());
+                }
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "No password found for domain: " + domain);
+            }
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Domain cannot be null.");
+        }
     }//GEN-LAST:event_RetrievePasswordBTNActionPerformed
 
     /**

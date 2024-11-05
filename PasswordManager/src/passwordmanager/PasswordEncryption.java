@@ -4,35 +4,66 @@
  */
 package passwordmanager;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Base64;
 
 /**
  *
  * @author liam
  */
+
 public class PasswordEncryption {
-    
- public static String hashPassword(String password) {
+    private static final String ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES";
+    private static SecretKey secretKey;
+
+    // File to store the key (you can also use a keystore)
+    private static final String KEY_FILE = "secret.key";
+
+    static {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes());
-            StringBuilder hexString = new StringBuilder();
-            
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if(hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
+            // Load the key from a file or generate a new one
+            File keyFile = new File(KEY_FILE);
+            if (keyFile.exists()) {
+                // Load the key from the file
+                byte[] keyBytes = new byte[16]; // 128-bit key
+                try (FileInputStream fis = new FileInputStream(keyFile)) {
+                    fis.read(keyBytes);
+                }
+                secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
+            } else {
+                // Generate a new key and save it to the file
+                KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
+                keyGenerator.init(128);
+                secretKey = keyGenerator.generateKey();
+
+                // Save the key to a file
+                try (FileOutputStream fos = new FileOutputStream(keyFile)) {
+                    fos.write(secretKey.getEncoded());
+                }
             }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
- 
-  public static boolean verifyPassword(String enteredPassword, String storedHash) {
-        String enteredHash = hashPassword(enteredPassword);
-        return enteredHash.equals(storedHash);  // true if hashes match
+
+    public static String encrypt(String password) throws Exception {
+        Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedBytes = cipher.doFinal(password.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public static String decrypt(String encryptedPassword) throws Exception {
+        Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedPassword));
+        return new String(decryptedBytes);
     }
 }
-
